@@ -5,14 +5,17 @@
 # @author: baorunchen(runchen0518@gmail.com)
 # @date: 2018/5/3
 import re
-import sys
 import time
 
 import urllib2
 
 import os
 
+from PIL import Image
+from pytesseract import pytesseract
+
 box_office_website_homepage_url = 'http://58921.com'
+box_office_website_url = 'http://58921.com/alltime'
 test_url = 'test_url'
 
 
@@ -88,7 +91,7 @@ def process_data(raw_data):
 
 
 def write_data(film, url):
-    run_log(film + '\t' + url)
+    # run_log(film + '\t' + url)
     with open('data.txt', 'a+') as f:
         f.write(film + '\t' + url + '\n')
 
@@ -117,11 +120,17 @@ def write_title(raw_data):
         f.write('\n')
 
 
-def main():
-    if len(sys.argv) != 2:
-        run_log('param error!')
-        exit(-1)
+def image_recognition(path):
+    if not os.path.exists(path):
+        run_log('pic not exists!')
+        return ''
+    im = Image.open(path)
+    data = pytesseract.image_to_string(im)
+    run_log(data)
+    return data
 
+
+def main():
     # create offline html directory
     local_page_path = 'offline_web_page'
     offline_page_dir_path = os.getcwd() + '/' + local_page_path
@@ -129,10 +138,15 @@ def main():
         os.makedirs(offline_page_dir_path)
         run_log('make directory, path: %s' % offline_page_dir_path)
 
-    page_data = get_page_data_from_url(sys.argv[1])
+    # process_title(get_page_data_from_url(url))
+    url_list = [box_office_website_url]
 
-    # process_title(page_data)
-    process(page_data, offline_page_dir_path)
+    for i in range(1, 10):
+        url_list.append(box_office_website_url + '?page=%d' % i)
+
+    for url in url_list:
+        page_data = get_page_data_from_url(url)
+        process(page_data, offline_page_dir_path)
 
 
 if __name__ == '__main__':
