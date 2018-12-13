@@ -4,13 +4,10 @@
 # @version: python 2.7.13
 # @author: baorunchen(runchen0518@gmail.com)
 # @date: 2018/5/3
+import os
 import re
 import time
-
 import urllib2
-
-import os
-
 from PIL import Image
 from pytesseract import pytesseract
 
@@ -20,10 +17,12 @@ test_url = 'test_url'
 offline_html_dir_name = 'html'
 
 
+# 打日志专用，封装print，防止python3用户执行前需要大量修改py文件里面的print
 def run_log(log):
     print time.strftime('%Y-%m-%d %H:%M:%S', time.localtime()), '-', log
 
 
+# 请求页面内容
 def get_page_data_from_url(url):
     run_log('now get page date from url: %s' % url)
 
@@ -52,6 +51,7 @@ def get_page_data_from_url(url):
     return data
 
 
+# 爬取网页内容并处理
 def process(url, offline_path):
     run_log('get data from page...')
     page_data = get_page_data_from_url(url)
@@ -70,6 +70,7 @@ def process(url, offline_path):
         exit(-6)
 
 
+# 处理离线网页
 def process_offline(path):
     html_dir_path = os.getcwd() + '/' + path
     run_log('now get offline html from path: %s' % html_dir_path)
@@ -104,6 +105,7 @@ def process_offline(path):
     run_log('success!')
 
 
+# 提取页面内容
 def process_data(raw_data):
     # run_log(raw_data)
     # pattern = re.compile('<a href=.*?>(.*?)</a>', re.S)
@@ -126,6 +128,7 @@ def process_data(raw_data):
         write_data(film_name, film_url)
 
 
+# 将电影名称和电影网址写入本地文件
 def write_data(film, url):
     with open('data.txt', 'a+') as f:
         f.write('%s\t%s\n' % (film, url))
@@ -155,6 +158,7 @@ def write_title(raw_data):
         f.write('\n')
 
 
+# 识别图片里面的数字
 def image_recognition(path):
     if not os.path.exists(path):
         run_log('pic not exists!')
